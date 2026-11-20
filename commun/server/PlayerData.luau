@@ -49,9 +49,11 @@ local function withRetries(label: string, fn: () -> any): (boolean, any)
 	return false, nil
 end
 
-function PlayerData.new(storeName: string, template: { [string]: any })
+-- options.kickMessage(player) : texte affiché si les données ne peuvent pas être chargées (traduisible)
+function PlayerData.new(storeName: string, template: { [string]: any }, options: { kickMessage: ((Player) -> string)? }?)
 	local self = setmetatable({}, PlayerData)
 	self._template = template
+	self._kickMessage = options and options.kickMessage
 	self._profiles = {} :: { [Player]: any }
 	self._loadedEvent = Instance.new("BindableEvent")
 	self.Loaded = self._loadedEvent.Event
@@ -119,7 +121,7 @@ function PlayerData:_load(player: Player)
 			if RunService:IsStudio() then
 				warn("[PlayerData] Chargement impossible dans Studio, on continue avec des données vides.")
 			else
-				player:Kick("Impossible de charger tes données. Reviens dans un instant !")
+				player:Kick(self._kickMessage and self._kickMessage(player) or "Could not load your data. Please come back in a moment!")
 				return
 			end
 		end

@@ -25,8 +25,9 @@ function EconomyService.registerStateExtra(fn: (Player, any, { [string]: any }) 
 	table.insert(stateExtras, fn)
 end
 
-function EconomyService.notify(player: Player, message: string, kind: string?)
-	remotes.Notify:FireClient(player, message, kind or "info")
+-- Envoie une notification : le client la traduit lui-même dans sa langue (clé + valeurs)
+function EconomyService.notify(player: Player, key: string, args: { any }?, kind: string?)
+	remotes.Notify:FireClient(player, key, args or {}, kind or "info")
 end
 
 function EconomyService.data(player: Player)
@@ -153,10 +154,7 @@ function EconomyService.rebirth(player: Player)
 		PlotService.updateVisuals(plot, data)
 		plot.meteors:ClearAllChildren()
 	end
-	remotes.Announce:FireAllClients(
-		string.format("%s a fait son rebirth n°%d !", player.DisplayName, data.rebirths),
-		"rebirth"
-	)
+	remotes.Announce:FireAllClients("msg_rebirth", { player.DisplayName, data.rebirths }, "rebirth")
 	EconomyService.pushState(player)
 end
 

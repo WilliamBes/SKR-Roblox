@@ -10,7 +10,14 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Format = require(ReplicatedStorage.Commun.Format)
 local remotes = ReplicatedStorage:WaitForChild("Remotes")
 
+local T = require(ReplicatedStorage.Shared.T)
+
 local player = Players.LocalPlayer
+
+-- Traduit un texte dans la langue du joueur (détectée automatiquement par Roblox)
+local function tr(key: string, args: { any }?): string
+	return T:get(player.LocaleId, key, args)
+end
 local camera = workspace.CurrentCamera
 
 local COLORS = {
@@ -166,7 +173,7 @@ local upgradesPanel = make("Frame", {
 	BackgroundTransparency = 0.15,
 	Parent = gui,
 }, { corner(16), stroke(COLORS.accent, 3) })
-label({ Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 6), Text = "Améliorations", Parent = upgradesPanel })
+label({ Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 6), Text = tr("ui_upgrades"), Parent = upgradesPanel })
 local list = make("Frame", {
 	Position = UDim2.fromOffset(10, 50),
 	Size = UDim2.new(1, -20, 1, -60),
@@ -183,11 +190,11 @@ for order, key in Config.UpgradeOrder do
 		BackgroundColor3 = COLORS.panelLight,
 		Parent = list,
 	}, { corner(12) })
-	local title = label({ Position = UDim2.fromOffset(10, 4), Size = UDim2.new(0.6, -10, 0, 30), Text = upgrade.name, TextXAlignment = Enum.TextXAlignment.Left, Parent = card })
+	local title = label({ Position = UDim2.fromOffset(10, 4), Size = UDim2.new(0.6, -10, 0, 30), Text = tr("upgrade_" .. key), TextXAlignment = Enum.TextXAlignment.Left, Parent = card })
 	local desc = label({
 		Position = UDim2.fromOffset(10, 36),
 		Size = UDim2.new(0.6, -10, 0, 32),
-		Text = upgrade.description,
+		Text = tr("upgrade_" .. key .. "_desc"),
 		Font = Enum.Font.Gotham,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextWrapped = true,
@@ -225,7 +232,7 @@ local shopToggle = button({
 	Size = UDim2.fromOffset(130, 60),
 	BackgroundColor3 = COLORS.gold,
 	TextColor3 = Color3.fromRGB(40, 30, 0),
-	Text = "Boutique",
+	Text = tr("ui_shop"),
 	Parent = gui,
 }, function()
 	shopFrame.Visible = not shopFrame.Visible
@@ -242,7 +249,7 @@ shopFrame = make("Frame", {
 	Visible = false,
 	Parent = gui,
 }, { corner(18), stroke(COLORS.gold, 3) })
-label({ Size = UDim2.new(1, 0, 0, 44), Position = UDim2.fromOffset(0, 8), Text = "Boutique", TextColor3 = COLORS.gold, Parent = shopFrame })
+label({ Size = UDim2.new(1, 0, 0, 44), Position = UDim2.fromOffset(0, 8), Text = tr("ui_shop"), TextColor3 = COLORS.gold, Parent = shopFrame })
 button({
 	AnchorPoint = Vector2.new(1, 0),
 	Position = UDim2.new(1, -10, 0, 10),
@@ -273,11 +280,11 @@ local shopList = make("ScrollingFrame", {
 local passButtons = {}
 local function shopItem(order: number, item, isPass: boolean, key: string)
 	local card = make("Frame", { LayoutOrder = order, BackgroundColor3 = COLORS.panelLight, Parent = shopList }, { corner(12) })
-	label({ Position = UDim2.fromOffset(10, 6), Size = UDim2.new(1, -20, 0, 30), Text = item.name, TextColor3 = isPass and COLORS.gold or COLORS.accent, Parent = card })
+	label({ Position = UDim2.fromOffset(10, 6), Size = UDim2.new(1, -20, 0, 30), Text = tr((isPass and "pass_" or "product_") .. key), TextColor3 = isPass and COLORS.gold or COLORS.accent, Parent = card })
 	label({
 		Position = UDim2.fromOffset(10, 38),
 		Size = UDim2.new(1, -20, 0, 50),
-		Text = item.description,
+		Text = tr((isPass and "pass_" or "product_") .. key .. "_desc"),
 		Font = Enum.Font.Gotham,
 		TextWrapped = true,
 		Parent = card,
@@ -287,7 +294,7 @@ local function shopItem(order: number, item, isPass: boolean, key: string)
 		Position = UDim2.new(0, 10, 1, -50),
 		Size = UDim2.new(1, -20, 0, 40),
 		BackgroundColor3 = available and COLORS.green or COLORS.grey,
-		Text = available and "Acheter" or "Bientôt",
+		Text = available and tr("ui_buy") or tr("ui_soon"),
 		Parent = card,
 	}, function()
 		if not available then
@@ -328,18 +335,18 @@ end
 ------------------------------------------------------------------------------
 local function refresh()
 	cashLabel.Text = Format.number(state.cash) .. " $"
-	local info = "x" .. string.format("%g", math.floor(state.multiplier * 100) / 100) .. " gains"
+	local info = tr("ui_multiplier", { string.format("%g", math.floor(state.multiplier * 100) / 100) })
 	if state.passiveIncome > 0 then
-		info ..= "  ·  +" .. Format.number(state.passiveIncome) .. " $/s"
+		info ..= "  ·  " .. tr("ui_income", { Format.number(state.passiveIncome) })
 	end
 	infoLabel.Text = info
 
 	for key, ui in upgradeButtons do
 		local upgrade = Config.Upgrades[key]
 		local level = state.upgrades[key] or 0
-		ui.title.Text = upgrade.name .. " (niv. " .. level .. ")"
+		ui.title.Text = tr("ui_level", { tr("upgrade_" .. key), level })
 		if level >= upgrade.max then
-			ui.buy.Text = "MAX"
+			ui.buy.Text = tr("ui_max")
 			ui.buy.BackgroundColor3 = COLORS.grey
 		else
 			local cost = Config.upgradeCost(key, level)
@@ -350,12 +357,12 @@ local function refresh()
 
 	local rebirthCost = Config.rebirthCost(state.rebirths)
 	local nextBonus = Config.rebirthMultiplier(state.rebirths + 1)
-	rebirthButton.Text = string.format("Rebirth (x%s) : %s $", tostring(nextBonus), Format.number(rebirthCost))
+	rebirthButton.Text = tr("ui_rebirth", { tostring(nextBonus), Format.number(rebirthCost) })
 	rebirthButton.BackgroundColor3 = state.cash >= rebirthCost and Color3.fromRGB(150, 70, 230) or COLORS.grey
 
 	for key, b in passButtons do
 		if state.passes[key] then
-			b.Text = "Possédé"
+			b.Text = tr("ui_owned")
 			b.BackgroundColor3 = COLORS.grey
 		end
 	end
@@ -372,7 +379,7 @@ task.spawn(function()
 		local remaining = boostEndsAt - os.clock()
 		boostLabel.Visible = remaining > 0
 		if remaining > 0 then
-			boostLabel.Text = "BOOST x" .. Config.Boost.multiplier .. " : " .. Format.time(remaining)
+			boostLabel.Text = tr("ui_boost", { Config.Boost.multiplier, Format.time(remaining) })
 		end
 		task.wait(0.5)
 	end
@@ -462,10 +469,10 @@ local banner = label({
 	Parent = gui,
 })
 local bannerToken = 0
-remotes.Announce.OnClientEvent:Connect(function(message: string, kind: string)
+remotes.Announce.OnClientEvent:Connect(function(key: string, args: { any }, kind: string)
 	bannerToken += 1
 	local token = bannerToken
-	banner.Text = message
+	banner.Text = tr(key, args)
 	banner.TextColor3 = kind == "legendary" and COLORS.gold or Color3.fromRGB(200, 150, 255)
 	banner.Visible = true
 	popIn(banner)
@@ -515,11 +522,30 @@ local function toast(message: string, kind: string)
 		playSound("reward")
 	end
 end
-remotes.Notify.OnClientEvent:Connect(toast)
+remotes.Notify.OnClientEvent:Connect(function(key: string, args: { any }, kind: string)
+	toast(tr(key, args), kind)
+end)
 
 ------------------------------------------------------------------------------
 -- Objectif en cours (en haut à gauche)
 ------------------------------------------------------------------------------
+local function questDescription(quest): string
+	if quest.type == "collect" then
+		return tr(quest.number == 1 and "quest_walk" or "quest_collect", { quest.target })
+	elseif quest.type == "upgrade" then
+		local name = tr("upgrade_" .. quest.key)
+		if quest.key == "Refinery" and quest.target == 1 then
+			return tr("quest_build_refinery")
+		elseif quest.target == 1 then
+			return tr("quest_upgrade", { name })
+		end
+		return tr("quest_upgrade_level", { name, quest.target })
+	elseif quest.type == "earned" then
+		return tr("quest_earned", { Format.number(quest.target) })
+	end
+	return tr("quest_rebirth")
+end
+
 local questFrame = make("Frame", {
 	Position = UDim2.fromOffset(10, 10),
 	Size = UDim2.fromOffset(320, 96),
@@ -528,7 +554,7 @@ local questFrame = make("Frame", {
 	Visible = false,
 	Parent = gui,
 }, { corner(14), stroke(COLORS.green, 3) })
-local questTitle = label({ Position = UDim2.fromOffset(12, 6), Size = UDim2.new(1, -24, 0, 22), Text = "Objectif", TextColor3 = COLORS.green, TextXAlignment = Enum.TextXAlignment.Left, Parent = questFrame })
+local questTitle = label({ Position = UDim2.fromOffset(12, 6), Size = UDim2.new(1, -24, 0, 22), Text = "", TextColor3 = COLORS.green, TextXAlignment = Enum.TextXAlignment.Left, Parent = questFrame })
 local questText = label({ Position = UDim2.fromOffset(12, 30), Size = UDim2.new(1, -24, 0, 30), Text = "", TextXAlignment = Enum.TextXAlignment.Left, Parent = questFrame })
 local barBack = make("Frame", { Position = UDim2.fromOffset(12, 66), Size = UDim2.new(1, -24, 0, 20), BackgroundColor3 = COLORS.panelLight, Parent = questFrame }, { corner(10) })
 local barFill = make("Frame", { Size = UDim2.fromScale(0, 1), BackgroundColor3 = COLORS.green, Parent = barBack }, { corner(10) })
@@ -641,7 +667,7 @@ local function toggle(frame: GuiObject)
 end
 
 -- Cadeaux
-local giftsFrame = panel("Cadeaux de temps de jeu", 560, 260, COLORS.green)
+local giftsFrame = panel(tr("ui_gifts_title"), 560, 260, COLORS.green)
 table.insert(openPanels, giftsFrame)
 local giftsRow = make("Frame", {
 	Position = UDim2.fromOffset(14, 64),
@@ -655,7 +681,7 @@ local giftButton = button({
 	Position = UDim2.new(0, 10, 0.5, 0),
 	Size = UDim2.fromOffset(130, 60),
 	BackgroundColor3 = COLORS.green,
-	Text = "Cadeaux",
+	Text = tr("ui_gifts"),
 	Parent = gui,
 }, function()
 	toggle(giftsFrame)
@@ -678,7 +704,7 @@ local sessionBase = os.clock()
 for i, gift in Config.Gifts do
 	local cell = make("Frame", { Size = UDim2.new(0.2, -7, 1, 0), BackgroundColor3 = COLORS.panelLight, Parent = giftsRow }, { corner(12) })
 	label({ Position = UDim2.fromOffset(4, 6), Size = UDim2.new(1, -8, 0, 40), Text = "🎁", Parent = cell })
-	label({ Position = UDim2.fromOffset(4, 50), Size = UDim2.new(1, -8, 0, 22), Text = gift.minutes .. " min", Parent = cell })
+	label({ Position = UDim2.fromOffset(4, 50), Size = UDim2.new(1, -8, 0, 22), Text = tr("ui_minutes", { gift.minutes }), Parent = cell })
 	local b = button({
 		Position = UDim2.new(0, 6, 1, -50),
 		Size = UDim2.new(1, -12, 0, 42),
@@ -699,10 +725,10 @@ task.spawn(function()
 			local b = giftCells[i]
 			local remaining = gift.minutes * 60 - elapsed
 			if giftsClaimed[i] then
-				b.Text = "Ouvert"
+				b.Text = tr("ui_opened")
 				b.BackgroundColor3 = COLORS.grey
 			elseif remaining <= 0 then
-				b.Text = "Ouvrir"
+				b.Text = tr("ui_open")
 				b.BackgroundColor3 = COLORS.green
 				ready += 1
 			else
@@ -717,14 +743,14 @@ task.spawn(function()
 end)
 
 -- Codes
-local codesFrame = panel("Codes", 420, 200, COLORS.accent)
+local codesFrame = panel(tr("ui_codes"), 420, 200, COLORS.accent)
 table.insert(openPanels, codesFrame)
 local codeBox = make("TextBox", {
 	Position = UDim2.fromOffset(20, 64),
 	Size = UDim2.new(1, -40, 0, 50),
 	BackgroundColor3 = COLORS.panelLight,
 	TextColor3 = COLORS.text,
-	PlaceholderText = "Écris un code ici",
+	PlaceholderText = tr("ui_code_placeholder"),
 	Font = Enum.Font.FredokaOne,
 	TextScaled = true,
 	ClearTextOnFocus = false,
@@ -735,7 +761,7 @@ button({
 	Position = UDim2.new(0, 20, 1, -70),
 	Size = UDim2.new(1, -40, 0, 50),
 	BackgroundColor3 = COLORS.green,
-	Text = "Valider",
+	Text = tr("ui_redeem"),
 	Parent = codesFrame,
 }, function()
 	if codeBox.Text ~= "" then
@@ -748,7 +774,7 @@ button({
 	Position = UDim2.new(0, 10, 0.5, 75),
 	Size = UDim2.fromOffset(130, 60),
 	BackgroundColor3 = COLORS.accent,
-	Text = "Codes",
+	Text = tr("ui_codes"),
 	Parent = gui,
 }, function()
 	toggle(codesFrame)
@@ -764,14 +790,14 @@ end)
 ------------------------------------------------------------------------------
 -- Récompense quotidienne (s'ouvre toute seule)
 ------------------------------------------------------------------------------
-local dailyFrame = panel("Récompense du jour", 420, 240, COLORS.gold)
+local dailyFrame = panel(tr("ui_daily_title"), 420, 240, COLORS.gold)
 table.insert(openPanels, dailyFrame)
 local dailyText = label({ Position = UDim2.fromOffset(20, 60), Size = UDim2.new(1, -40, 0, 80), Text = "", TextWrapped = true, Parent = dailyFrame })
 button({
 	Position = UDim2.new(0, 20, 1, -70),
 	Size = UDim2.new(1, -40, 0, 54),
 	BackgroundColor3 = COLORS.green,
-	Text = "Récupérer",
+	Text = tr("ui_claim"),
 	Parent = dailyFrame,
 }, function()
 	remotes.Action:FireServer("claimDaily")
@@ -789,8 +815,8 @@ remotes.State.OnClientEvent:Connect(function(newState)
 	local quest = newState.quest
 	questFrame.Visible = quest ~= nil
 	if quest then
-		questTitle.Text = string.format("Objectif %d/%d  ·  +%s $", quest.number, quest.total, Format.number(quest.reward))
-		questText.Text = quest.text
+		questTitle.Text = tr("ui_quest", { quest.number, quest.total, Format.number(quest.reward) })
+		questText.Text = questDescription(quest)
 		local ratio = math.clamp(quest.progress / quest.target, 0, 1)
 		TweenService:Create(barFill, TweenInfo.new(0.2), { Size = UDim2.fromScale(ratio, 1) }):Play()
 		barText.Text = Format.number(quest.progress) .. " / " .. Format.number(quest.target)
@@ -802,9 +828,48 @@ remotes.State.OnClientEvent:Connect(function(newState)
 	local daily = newState.daily
 	if daily and daily.claimable and not dailyShown then
 		dailyShown = true
-		dailyText.Text = string.format("Jour %d de suite !\n+%s $", daily.streak, Format.number(daily.reward))
+		dailyText.Text = tr("ui_daily_text", { daily.streak, Format.number(daily.reward) })
 		toggle(dailyFrame)
 	end
 end)
+
+
+------------------------------------------------------------------------------
+-- Textes du monde 3D (panneaux des usines, classements) traduits dans ta langue
+------------------------------------------------------------------------------
+local CollectionService = game:GetService("CollectionService")
+
+local function bindPlotLabel(textLabel: Instance)
+	if not textLabel:IsA("TextLabel") then
+		return
+	end
+	local function update()
+		local owner = textLabel:GetAttribute("Owner")
+		textLabel.Text = if owner and owner ~= "" then tr("world_plot_owner", { owner }) else tr("world_plot_free")
+	end
+	textLabel:GetAttributeChangedSignal("Owner"):Connect(update)
+	update()
+end
+
+local function bindTranslatedLabel(textLabel: Instance)
+	if not textLabel:IsA("TextLabel") then
+		return
+	end
+	local function update()
+		local key = textLabel:GetAttribute("TextKey")
+		textLabel.Text = if key and key ~= "" then tr(key) else ""
+	end
+	textLabel:GetAttributeChangedSignal("TextKey"):Connect(update)
+	update()
+end
+
+CollectionService:GetInstanceAddedSignal("PlotLabel"):Connect(bindPlotLabel)
+for _, instance in CollectionService:GetTagged("PlotLabel") do
+	bindPlotLabel(instance)
+end
+CollectionService:GetInstanceAddedSignal("TranslatedLabel"):Connect(bindTranslatedLabel)
+for _, instance in CollectionService:GetTagged("TranslatedLabel") do
+	bindTranslatedLabel(instance)
+end
 
 refresh()

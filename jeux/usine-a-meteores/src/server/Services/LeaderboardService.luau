@@ -1,5 +1,6 @@
 -- Classements globaux (tous serveurs confondus) affichés sur deux grands panneaux au spawn.
 local DataStoreService = game:GetService("DataStoreService")
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -19,7 +20,7 @@ end
 local BOARDS = {
 	{
 		key = "TotalGagne",
-		title = "Les plus riches",
+		titleKey = "world_top_cash",
 		value = function(data)
 			return encodeCash(data.totalEarned)
 		end,
@@ -31,7 +32,7 @@ local BOARDS = {
 	},
 	{
 		key = "Rebirths",
-		title = "Le plus de rebirths",
+		titleKey = "world_top_rebirths",
 		value = function(data)
 			return data.rebirths
 		end,
@@ -75,8 +76,23 @@ local function buildBoard(board)
 	title.Font = Enum.Font.FredokaOne
 	title.TextScaled = true
 	title.TextColor3 = Color3.fromRGB(20, 15, 30)
-	title.Text = board.title
+	title.Text = ""
+	title:SetAttribute("TextKey", board.titleKey)
+	CollectionService:AddTag(title, "TranslatedLabel")
 	title.Parent = gui
+
+	-- Message d'état (chargement, erreur) traduit côté client
+	local status = Instance.new("TextLabel")
+	status.Position = UDim2.fromOffset(16, 64)
+	status.Size = UDim2.new(1, -32, 0, 38)
+	status.BackgroundTransparency = 1
+	status.Font = Enum.Font.FredokaOne
+	status.TextScaled = true
+	status.TextColor3 = Color3.new(1, 1, 1)
+	status.Text = ""
+	status:SetAttribute("TextKey", "")
+	CollectionService:AddTag(status, "TranslatedLabel")
+	status.Parent = gui
 
 	local rows = {}
 	for i = 1, Config.Leaderboard.size do
@@ -92,7 +108,7 @@ local function buildBoard(board)
 		row.Parent = gui
 		rows[i] = row
 	end
-	return rows
+	return rows, status
 end
 
 function LeaderboardService.init(store)
@@ -104,8 +120,8 @@ function LeaderboardService.init(store)
 		if ok then
 			stores[board.key] = s
 		end
-		board.rows = buildBoard(board)
-		board.rows[1].Text = "Chargement..."
+		board.rows, board.status = buildBoard(board)
+		board.status:SetAttribute("TextKey", "world_loading")
 	end
 
 	task.spawn(function()
@@ -133,6 +149,7 @@ function LeaderboardService.init(store)
 					end)
 					if ok and pages then
 						local entries = pages:GetCurrentPage()
+						board.status:SetAttribute("TextKey", "")
 						for i, row in board.rows do
 							local entry = entries[i]
 							if entry then
@@ -142,7 +159,7 @@ function LeaderboardService.init(store)
 							end
 						end
 					else
-						board.rows[1].Text = "Classement indisponible"
+						board.status:SetAttribute("TextKey", "world_unavailable")
 					end
 				end
 			end

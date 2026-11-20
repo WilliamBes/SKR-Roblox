@@ -18,6 +18,8 @@ Tycoon incrémental : des météores tombent sur ton usine, tu les ramasses en p
 - Sons de ramassage, d'impact, d'achat et de récompense (modifiables dans `Config.Sounds`).
 - L'usine se construit : cristaux (Valeur), radars (Fréquence), pylônes (Aimant), tapis roulant et cheminées (Raffinerie), et la bordure change de couleur à chaque rebirth.
 
+- **15 langues** : anglais (langue par défaut), français, espagnol, portugais, allemand, italien, russe, turc, indonésien, polonais, japonais, coréen, chinois, vietnamien et thaï. La langue est détectée automatiquement chez chaque joueur (`player.LocaleId`). Tous les textes sont dans [`src/shared/Lang.luau`](src/shared/Lang.luau). Pour ajouter une langue, copie le bloc `Lang.en` et traduis les valeurs en gardant les `{1}`, `{2}`… tels quels.
+
 Tous les réglages (prix, vitesses, chances) sont dans [`src/shared/Config.luau`](src/shared/Config.luau).
 
 ## Tester dans Studio (10 minutes)
@@ -45,6 +47,7 @@ Prix de départ conseillés : Argent x2 = 199 R$, Ramassage auto = 149 R$, Mét�
 
 ## Ce qu'il reste à faire à la main
 
+- Traduire aussi la page du jeu : dans le Creator Dashboard, onglet *Localization*, ajoute les langues pour le titre, la description, les noms des game passes et des developer products (c'est ce que voient les joueurs dans la fenêtre d'achat Roblox).
 - Icône du jeu (512×512) et 3 miniatures (1920×1080).
 - Tester sur téléphone (dans Studio : *Test* → *Device*).
 - Description et titre du jeu, en anglais pour toucher le plus de monde.

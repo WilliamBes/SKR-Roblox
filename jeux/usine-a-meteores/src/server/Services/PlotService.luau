@@ -1,4 +1,5 @@
 -- Construit la carte (sol, spawn, parcelles) et attribue une usine à chaque joueur.
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -102,7 +103,9 @@ local function buildPlot(map: Folder, index: number, center: Vector3): Plot
 	label.TextScaled = true
 	label.TextColor3 = Color3.new(1, 1, 1)
 	label.TextStrokeTransparency = 0.2
-	label.Text = "Usine libre"
+	label.Text = ""
+	label:SetAttribute("Owner", "")
+	CollectionService:AddTag(label, "PlotLabel")
 	label.Parent = billboard
 
 	local meteors = Instance.new("Folder")
@@ -179,7 +182,7 @@ function PlotService.assign(player: Player): Plot?
 	for _, plot in plots do
 		if plot.owner == nil then
 			plot.owner = player
-			plot.label.Text = "Usine de " .. player.DisplayName
+			plot.label:SetAttribute("Owner", player.DisplayName)
 			return plot
 		end
 	end
@@ -190,7 +193,7 @@ function PlotService.release(player: Player)
 	for _, plot in plots do
 		if plot.owner == player then
 			plot.owner = nil
-			plot.label.Text = "Usine libre"
+			plot.label:SetAttribute("Owner", "")
 			plot.meteors:ClearAllChildren()
 			PlotService.updateVisuals(plot, nil)
 		end
