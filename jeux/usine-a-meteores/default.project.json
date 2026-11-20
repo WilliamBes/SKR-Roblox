@@ -1,0 +1,19 @@
+{
+  "name": "UsineAMeteores",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Shared": { "$path": "src/shared" },
+      "Commun": { "$path": "../../commun/shared" }
+    },
+    "ServerScriptService": {
+      "Jeu": { "$path": "src/server" },
+      "Commun": { "$path": "../../commun/server" }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "Jeu": { "$path": "src/client" }
+      }
+    }
+  }
+}
