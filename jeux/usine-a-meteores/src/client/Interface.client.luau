@@ -3,6 +3,7 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
 local Debris = game:GetService("Debris")
 
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -21,6 +22,24 @@ local COLORS = {
 	gold = Color3.fromRGB(255, 210, 60),
 	text = Color3.new(1, 1, 1),
 }
+
+local soundCache: { [string]: Sound } = {}
+local function playSound(name: string)
+	local info = Config.Sounds[name]
+	if not info then
+		return
+	end
+	local sound = soundCache[name]
+	if not sound then
+		sound = Instance.new("Sound")
+		sound.SoundId = info.id
+		sound.Volume = info.volume or 0.5
+		sound.PlaybackSpeed = info.pitch or 1
+		sound.Parent = SoundService
+		soundCache[name] = sound
+	end
+	SoundService:PlayLocalSound(sound)
+end
 
 local state = {
 	cash = 0,
@@ -183,6 +202,7 @@ for order, key in Config.UpgradeOrder do
 		Parent = card,
 	}, function()
 		remotes.Action:FireServer("upgrade", key)
+		playSound("buy")
 	end)
 	upgradeButtons[key] = { title = title, desc = desc, buy = buy }
 end
@@ -392,6 +412,7 @@ remotes.Collected.OnClientEvent:Connect(function(amount: number, position: Vecto
 	TweenService:Create(anchor, TweenInfo.new(1), { Position = position + Vector3.new(0, 6, 0) }):Play()
 	TweenService:Create(text, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { TextTransparency = 1 }):Play()
 	Debris:AddItem(anchor, 1.1)
+	playSound("collect")
 end)
 
 remotes.Impact.OnClientEvent:Connect(function(position: Vector3, rarity: string)
@@ -409,6 +430,11 @@ remotes.Impact.OnClientEvent:Connect(function(position: Vector3, rarity: string)
 	local big = rarity == "Légendaire" and 30 or (rarity == "Rare" and 18 or 10)
 	TweenService:Create(ring, TweenInfo.new(0.5), { Size = Vector3.new(0.3, big, big), Transparency = 1 }):Play()
 	Debris:AddItem(ring, 0.6)
+	local character0 = player.Character
+	local root0 = character0 and character0:FindFirstChild("HumanoidRootPart")
+	if root0 and (root0.Position - position).Magnitude < 60 then
+		playSound("impact")
+	end
 
 	-- Petite secousse de caméra si l'impact est proche
 	local character = player.Character
@@ -448,6 +474,337 @@ remotes.Announce.OnClientEvent:Connect(function(message: string, kind: string)
 			banner.Visible = false
 		end
 	end)
+end)
+
+
+------------------------------------------------------------------------------
+-- Notifications (en bas de l'écran)
+------------------------------------------------------------------------------
+local toastHolder = make("Frame", {
+	AnchorPoint = Vector2.new(0.5, 1),
+	Position = UDim2.new(0.5, 0, 1, -90),
+	Size = UDim2.fromOffset(600, 200),
+	BackgroundTransparency = 1,
+	Parent = gui,
+}, {
+	make("UIListLayout", {
+		VerticalAlignment = Enum.VerticalAlignment.Bottom,
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		Padding = UDim.new(0, 6),
+	}),
+})
+
+local TOAST_COLORS = {
+	reward = COLORS.green,
+	error = Color3.fromRGB(200, 60, 60),
+	info = COLORS.panelLight,
+}
+
+local function toast(message: string, kind: string)
+	local frame = make("Frame", {
+		Size = UDim2.fromOffset(520, 44),
+		BackgroundColor3 = TOAST_COLORS[kind] or TOAST_COLORS.info,
+		Parent = toastHolder,
+	}, { corner(12), stroke() })
+	label({ Position = UDim2.fromOffset(10, 4), Size = UDim2.new(1, -20, 1, -8), Text = message, Parent = frame })
+	popIn(frame)
+	task.delay(3.5, function()
+		frame:Destroy()
+	end)
+	if kind == "reward" then
+		playSound("reward")
+	end
+end
+remotes.Notify.OnClientEvent:Connect(toast)
+
+------------------------------------------------------------------------------
+-- Objectif en cours (en haut à gauche)
+------------------------------------------------------------------------------
+local questFrame = make("Frame", {
+	Position = UDim2.fromOffset(10, 10),
+	Size = UDim2.fromOffset(320, 96),
+	BackgroundColor3 = COLORS.panel,
+	BackgroundTransparency = 0.15,
+	Visible = false,
+	Parent = gui,
+}, { corner(14), stroke(COLORS.green, 3) })
+local questTitle = label({ Position = UDim2.fromOffset(12, 6), Size = UDim2.new(1, -24, 0, 22), Text = "Objectif", TextColor3 = COLORS.green, TextXAlignment = Enum.TextXAlignment.Left, Parent = questFrame })
+local questText = label({ Position = UDim2.fromOffset(12, 30), Size = UDim2.new(1, -24, 0, 30), Text = "", TextXAlignment = Enum.TextXAlignment.Left, Parent = questFrame })
+local barBack = make("Frame", { Position = UDim2.fromOffset(12, 66), Size = UDim2.new(1, -24, 0, 20), BackgroundColor3 = COLORS.panelLight, Parent = questFrame }, { corner(10) })
+local barFill = make("Frame", { Size = UDim2.fromScale(0, 1), BackgroundColor3 = COLORS.green, Parent = barBack }, { corner(10) })
+local barText = label({ Size = UDim2.fromScale(1, 1), Text = "", ZIndex = 2, Parent = barBack })
+
+-- Flèche lumineuse vers le météore le plus proche pendant le premier objectif
+local beam = make("Beam", {
+	Color = ColorSequence.new(COLORS.gold),
+	Width0 = 0.6,
+	Width1 = 0.6,
+	FaceCamera = true,
+	LightEmission = 1,
+	Texture = "rbxasset://textures/particles/sparkles_main.dds",
+	TextureMode = Enum.TextureMode.Static,
+	TextureSpeed = 2,
+	Enabled = false,
+	Parent = workspace.Terrain,
+})
+local beamStart = make("Attachment", { Parent = workspace.Terrain })
+local beamEnd = make("Attachment", { Parent = workspace.Terrain })
+beam.Attachment0 = beamStart
+beam.Attachment1 = beamEnd
+
+local currentQuest = nil
+local currentPlot: Model? = nil
+
+task.spawn(function()
+	while true do
+		task.wait(0.2)
+		local active = false
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		local meteors = currentPlot and currentPlot:FindFirstChild("Meteores")
+		if currentQuest and currentQuest.type == "collect" and currentQuest.number == 1 and root and meteors then
+			local best, bestDistance = nil, math.huge
+			for _, meteor in meteors:GetChildren() do
+				if meteor:IsA("BasePart") and meteor:GetAttribute("Landed") then
+					local d = (meteor.Position - root.Position).Magnitude
+					if d < bestDistance then
+						best, bestDistance = meteor, d
+					end
+				end
+			end
+			if best then
+				active = true
+				beamStart.WorldPosition = root.Position - Vector3.new(0, 2, 0)
+				beamEnd.WorldPosition = best.Position
+			end
+		end
+		beam.Enabled = active
+	end
+end)
+
+-- Fait clignoter le bouton d'amélioration demandé par l'objectif
+local pulse = 0
+task.spawn(function()
+	while true do
+		task.wait(0.05)
+		pulse += 0.05
+		for key, ui in upgradeButtons do
+			local s = ui.buy:FindFirstChildOfClass("UIStroke")
+			if s then
+				local highlighted = currentQuest and currentQuest.type == "upgrade" and currentQuest.key == key
+				s.Color = highlighted and COLORS.gold or Color3.new(0, 0, 0)
+				s.Thickness = highlighted and (3 + math.sin(pulse * 6) * 1.5) or 2
+			end
+		end
+	end
+end)
+
+------------------------------------------------------------------------------
+-- Boutons à gauche : Boutique, Cadeaux, Codes
+------------------------------------------------------------------------------
+shopToggle.Position = UDim2.new(0, 10, 0.5, -75)
+
+local function panel(title: string, width: number, height: number, color: Color3)
+	local frame = make("Frame", {
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.55),
+		Size = UDim2.fromOffset(width, height),
+		BackgroundColor3 = COLORS.panel,
+		Visible = false,
+		Parent = gui,
+	}, { corner(18), stroke(color, 3) })
+	label({ Size = UDim2.new(1, 0, 0, 44), Position = UDim2.fromOffset(0, 8), Text = title, TextColor3 = color, Parent = frame })
+	button({
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -10, 0, 10),
+		Size = UDim2.fromOffset(40, 40),
+		BackgroundColor3 = Color3.fromRGB(200, 60, 60),
+		Text = "X",
+		Parent = frame,
+	}, function()
+		frame.Visible = false
+	end)
+	return frame
+end
+
+local openPanels = {}
+local function toggle(frame: GuiObject)
+	local show = not frame.Visible
+	for _, other in openPanels do
+		other.Visible = false
+	end
+	shopFrame.Visible = false
+	frame.Visible = show
+	if show then
+		popIn(frame)
+	end
+end
+
+-- Cadeaux
+local giftsFrame = panel("Cadeaux de temps de jeu", 560, 260, COLORS.green)
+table.insert(openPanels, giftsFrame)
+local giftsRow = make("Frame", {
+	Position = UDim2.fromOffset(14, 64),
+	Size = UDim2.new(1, -28, 1, -78),
+	BackgroundTransparency = 1,
+	Parent = giftsFrame,
+}, { make("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 8), HorizontalAlignment = Enum.HorizontalAlignment.Center }) })
+
+local giftButton = button({
+	AnchorPoint = Vector2.new(0, 0.5),
+	Position = UDim2.new(0, 10, 0.5, 0),
+	Size = UDim2.fromOffset(130, 60),
+	BackgroundColor3 = COLORS.green,
+	Text = "Cadeaux",
+	Parent = gui,
+}, function()
+	toggle(giftsFrame)
+end)
+local giftBadge = label({
+	AnchorPoint = Vector2.new(0.5, 0.5),
+	Position = UDim2.new(1, -4, 0, 4),
+	Size = UDim2.fromOffset(30, 30),
+	BackgroundTransparency = 0,
+	BackgroundColor3 = Color3.fromRGB(230, 40, 60),
+	Text = "",
+	Visible = false,
+	Parent = giftButton,
+})
+make("UICorner", { CornerRadius = UDim.new(1, 0), Parent = giftBadge })
+
+local giftCells = {}
+local giftsClaimed = {}
+local sessionBase = os.clock()
+for i, gift in Config.Gifts do
+	local cell = make("Frame", { Size = UDim2.new(0.2, -7, 1, 0), BackgroundColor3 = COLORS.panelLight, Parent = giftsRow }, { corner(12) })
+	label({ Position = UDim2.fromOffset(4, 6), Size = UDim2.new(1, -8, 0, 40), Text = "🎁", Parent = cell })
+	label({ Position = UDim2.fromOffset(4, 50), Size = UDim2.new(1, -8, 0, 22), Text = gift.minutes .. " min", Parent = cell })
+	local b = button({
+		Position = UDim2.new(0, 6, 1, -50),
+		Size = UDim2.new(1, -12, 0, 42),
+		BackgroundColor3 = COLORS.grey,
+		Text = "",
+		Parent = cell,
+	}, function()
+		remotes.Action:FireServer("claimGift", i)
+	end)
+	giftCells[i] = b
+end
+
+task.spawn(function()
+	while true do
+		local elapsed = os.clock() - sessionBase
+		local ready = 0
+		for i, gift in Config.Gifts do
+			local b = giftCells[i]
+			local remaining = gift.minutes * 60 - elapsed
+			if giftsClaimed[i] then
+				b.Text = "Ouvert"
+				b.BackgroundColor3 = COLORS.grey
+			elseif remaining <= 0 then
+				b.Text = "Ouvrir"
+				b.BackgroundColor3 = COLORS.green
+				ready += 1
+			else
+				b.Text = Format.time(remaining)
+				b.BackgroundColor3 = COLORS.grey
+			end
+		end
+		giftBadge.Visible = ready > 0
+		giftBadge.Text = tostring(ready)
+		task.wait(0.5)
+	end
+end)
+
+-- Codes
+local codesFrame = panel("Codes", 420, 200, COLORS.accent)
+table.insert(openPanels, codesFrame)
+local codeBox = make("TextBox", {
+	Position = UDim2.fromOffset(20, 64),
+	Size = UDim2.new(1, -40, 0, 50),
+	BackgroundColor3 = COLORS.panelLight,
+	TextColor3 = COLORS.text,
+	PlaceholderText = "Écris un code ici",
+	Font = Enum.Font.FredokaOne,
+	TextScaled = true,
+	ClearTextOnFocus = false,
+	Text = "",
+	Parent = codesFrame,
+}, { corner(10) })
+button({
+	Position = UDim2.new(0, 20, 1, -70),
+	Size = UDim2.new(1, -40, 0, 50),
+	BackgroundColor3 = COLORS.green,
+	Text = "Valider",
+	Parent = codesFrame,
+}, function()
+	if codeBox.Text ~= "" then
+		remotes.Action:FireServer("code", codeBox.Text)
+		codeBox.Text = ""
+	end
+end)
+button({
+	AnchorPoint = Vector2.new(0, 0.5),
+	Position = UDim2.new(0, 10, 0.5, 75),
+	Size = UDim2.fromOffset(130, 60),
+	BackgroundColor3 = COLORS.accent,
+	Text = "Codes",
+	Parent = gui,
+}, function()
+	toggle(codesFrame)
+end)
+
+-- La boutique ferme les autres fenêtres
+shopToggle.Activated:Connect(function()
+	for _, other in openPanels do
+		other.Visible = false
+	end
+end)
+
+------------------------------------------------------------------------------
+-- Récompense quotidienne (s'ouvre toute seule)
+------------------------------------------------------------------------------
+local dailyFrame = panel("Récompense du jour", 420, 240, COLORS.gold)
+table.insert(openPanels, dailyFrame)
+local dailyText = label({ Position = UDim2.fromOffset(20, 60), Size = UDim2.new(1, -40, 0, 80), Text = "", TextWrapped = true, Parent = dailyFrame })
+button({
+	Position = UDim2.new(0, 20, 1, -70),
+	Size = UDim2.new(1, -40, 0, 54),
+	BackgroundColor3 = COLORS.green,
+	Text = "Récupérer",
+	Parent = dailyFrame,
+}, function()
+	remotes.Action:FireServer("claimDaily")
+	dailyFrame.Visible = false
+end)
+local dailyShown = false
+
+------------------------------------------------------------------------------
+-- Mise à jour avec l'état du serveur
+------------------------------------------------------------------------------
+remotes.State.OnClientEvent:Connect(function(newState)
+	currentPlot = newState.plotModel
+	currentQuest = newState.quest
+
+	local quest = newState.quest
+	questFrame.Visible = quest ~= nil
+	if quest then
+		questTitle.Text = string.format("Objectif %d/%d  ·  +%s $", quest.number, quest.total, Format.number(quest.reward))
+		questText.Text = quest.text
+		local ratio = math.clamp(quest.progress / quest.target, 0, 1)
+		TweenService:Create(barFill, TweenInfo.new(0.2), { Size = UDim2.fromScale(ratio, 1) }):Play()
+		barText.Text = Format.number(quest.progress) .. " / " .. Format.number(quest.target)
+	end
+
+	giftsClaimed = newState.giftsClaimed or {}
+	sessionBase = os.clock() - (newState.sessionElapsed or 0)
+
+	local daily = newState.daily
+	if daily and daily.claimable and not dailyShown then
+		dailyShown = true
+		dailyText.Text = string.format("Jour %d de suite !\n+%s $", daily.streak, Format.number(daily.reward))
+		toggle(dailyFrame)
+	end
 end)
 
 refresh()

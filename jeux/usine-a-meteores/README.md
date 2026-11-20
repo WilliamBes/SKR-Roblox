@@ -11,6 +11,12 @@ Tycoon incrémental : des météores tombent sur ton usine, tu les ramasses en p
 - Sauvegarde automatique (toutes les 60 s, à la sortie et à l'arrêt du serveur).
 - Boutique : 3 game passes (Argent x2, Ramassage auto, Météores chanceux) et 3 developer products (Boost x3 5 min, Pluie d'argent, Pluie de météores).
 - Interface adaptée aux téléphones, « +X $ » flottants, ondes de choc, secousse de caméra.
+- Tutoriel : 8 objectifs récompensés, avec une traînée lumineuse vers les météores au début et le bouton d'amélioration à acheter qui clignote.
+- Cadeaux de temps de jeu (3, 8, 15, 25 et 40 minutes) et récompense quotidienne qui grossit sur 7 jours de suite.
+- Classements globaux au spawn : les plus riches et le plus de rebirths.
+- Codes promo (`LANCEMENT`, `METEORE`) à modifier dans `Config.Codes`.
+- Sons de ramassage, d'impact, d'achat et de récompense (modifiables dans `Config.Sounds`).
+- L'usine se construit : cristaux (Valeur), radars (Fréquence), pylônes (Aimant), tapis roulant et cheminées (Raffinerie), et la bordure change de couleur à chaque rebirth.
 
 Tous les réglages (prix, vitesses, chances) sont dans [`src/shared/Config.luau`](src/shared/Config.luau).
 
