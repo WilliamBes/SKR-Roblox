@@ -18,6 +18,7 @@ Tycoon incrémental : des météores tombent sur ton usine, tu les ramasses en p
 - Sons de ramassage, d'impact, d'achat et de récompense (modifiables dans `Config.Sounds`).
 - L'usine se construit : cristaux (Valeur), radars (Fréquence), pylônes (Aimant), tapis roulant et cheminées (Raffinerie), et la bordure change de couleur à chaque rebirth.
 
+- **Familiers** : 2 œufs (Météore 20K $, Cosmique 2M $) avec les chances de tirage affichées. 4 familiers (Comète, Petite Lune, Nova, Phénix) qui flottent derrière le joueur. Les 3 meilleurs donnent un bonus de gains, et ils sont gardés après un rebirth. Réglages dans `Config.Pets` et `Config.Eggs`. Les noms des familiers sont traduits en anglais et en français, les autres langues affichent l'anglais.
 - **15 langues** : anglais (langue par défaut), français, espagnol, portugais, allemand, italien, russe, turc, indonésien, polonais, japonais, coréen, chinois, vietnamien et thaï. La langue est détectée automatiquement chez chaque joueur (`player.LocaleId`). Tous les textes sont dans [`src/shared/Lang.luau`](src/shared/Lang.luau). Pour ajouter une langue, copie le bloc `Lang.en` et traduis les valeurs en gardant les `{1}`, `{2}`… tels quels.
 
 Tous les réglages (prix, vitesses, chances) sont dans [`src/shared/Config.luau`](src/shared/Config.luau).

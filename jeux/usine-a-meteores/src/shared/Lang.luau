@@ -1,5 +1,5 @@
--- Textes du jeu dans toutes les langues. Généré à partir de traductions ; pour ajouter une langue,
--- copie le bloc "en" et traduis les valeurs (garde les {1}, {2}… tels quels).
+-- Textes du jeu dans toutes les langues. Pour ajouter une langue, copie le bloc "en" et traduis les valeurs
+-- (garde les {1}, {2}… tels quels). Une clé absente d'une langue s'affiche en anglais.
 -- Les codes de langue suivent Roblox (player.LocaleId) : en, fr, es, pt, de, it, ru, tr, id, pl, ja, ko, zh, vi, th.
 local Lang = {}
 
@@ -76,6 +76,18 @@ Lang.en = {
 	rarity_Common = "Common",
 	rarity_Rare = "Rare",
 	rarity_Legendary = "Legendary",
+	ui_pets = "Pets",
+	ui_pets_hint = "Your {1} best pets are active: +{2}% earnings.",
+	ui_no_pets = "No pets yet. Hatch an egg!",
+	ui_hatch = "Hatch",
+	egg_Basic = "Meteor egg",
+	egg_Cosmic = "Cosmic egg",
+	msg_pet_rare = "{1} hatched a legendary pet!",
+	ui_hatched = "You hatched: {1}!",
+	pet_Comet = "Comet",
+	pet_Moonling = "Moonling",
+	pet_Nova = "Nova",
+	pet_Phoenix = "Phoenix",
 }
 
 Lang.de = {
@@ -151,6 +163,14 @@ Lang.de = {
 	rarity_Common = "Gewöhnlich",
 	rarity_Rare = "Selten",
 	rarity_Legendary = "Legendär",
+	ui_pets = "Haustiere",
+	ui_pets_hint = "Deine {1} besten Haustiere sind aktiv: +{2}% Einnahmen.",
+	ui_no_pets = "Noch keine Haustiere. Brüte ein Ei aus!",
+	ui_hatch = "Ausbrüten",
+	egg_Basic = "Meteor-Ei",
+	egg_Cosmic = "Kosmisches Ei",
+	msg_pet_rare = "{1} hat ein legendäres Haustier ausgebrütet!",
+	ui_hatched = "Du hast bekommen: {1}!",
 }
 
 Lang.es = {
@@ -226,6 +246,14 @@ Lang.es = {
 	rarity_Common = "Común",
 	rarity_Rare = "Raro",
 	rarity_Legendary = "Legendario",
+	ui_pets = "Mascotas",
+	ui_pets_hint = "Tus {1} mejores mascotas están activas: +{2}% de ganancias.",
+	ui_no_pets = "Aún no tienes mascotas. ¡Abre un huevo!",
+	ui_hatch = "Abrir",
+	egg_Basic = "Huevo de meteorito",
+	egg_Cosmic = "Huevo cósmico",
+	msg_pet_rare = "¡{1} sacó una mascota legendaria!",
+	ui_hatched = "¡Conseguiste: {1}!",
 }
 
 Lang.fr = {
@@ -301,6 +329,18 @@ Lang.fr = {
 	rarity_Common = "Commun",
 	rarity_Rare = "Rare",
 	rarity_Legendary = "Légendaire",
+	ui_pets = "Familiers",
+	ui_pets_hint = "Tes {1} meilleurs familiers sont actifs : +{2}% de gains.",
+	ui_no_pets = "Aucun familier. Fais éclore un œuf !",
+	ui_hatch = "Faire éclore",
+	egg_Basic = "Œuf de météore",
+	egg_Cosmic = "Œuf cosmique",
+	msg_pet_rare = "{1} a fait éclore un familier légendaire !",
+	ui_hatched = "Tu as obtenu : {1} !",
+	pet_Comet = "Comète",
+	pet_Moonling = "Petite Lune",
+	pet_Nova = "Nova",
+	pet_Phoenix = "Phénix",
 }
 
 Lang.id = {
@@ -376,6 +416,14 @@ Lang.id = {
 	rarity_Common = "Biasa",
 	rarity_Rare = "Langka",
 	rarity_Legendary = "Legendaris",
+	ui_pets = "Hewan peliharaan",
+	ui_pets_hint = "{1} peliharaan terbaikmu aktif: +{2}% penghasilan.",
+	ui_no_pets = "Belum punya peliharaan. Tetaskan telur!",
+	ui_hatch = "Tetaskan",
+	egg_Basic = "Telur meteor",
+	egg_Cosmic = "Telur kosmik",
+	msg_pet_rare = "{1} menetaskan peliharaan legendaris!",
+	ui_hatched = "Kamu mendapat: {1}!",
 }
 
 Lang.it = {
@@ -451,6 +499,14 @@ Lang.it = {
 	rarity_Common = "Comune",
 	rarity_Rare = "Raro",
 	rarity_Legendary = "Leggendario",
+	ui_pets = "Animaletti",
+	ui_pets_hint = "I tuoi {1} migliori animaletti sono attivi: +{2}% di guadagni.",
+	ui_no_pets = "Nessun animaletto. Schiudi un uovo!",
+	ui_hatch = "Schiudi",
+	egg_Basic = "Uovo di meteorite",
+	egg_Cosmic = "Uovo cosmico",
+	msg_pet_rare = "{1} ha schiuso un animaletto leggendario!",
+	ui_hatched = "Hai ottenuto: {1}!",
 }
 
 Lang.ja = {
@@ -526,6 +582,14 @@ Lang.ja = {
 	rarity_Common = "コモン",
 	rarity_Rare = "レア",
 	rarity_Legendary = "レジェンド",
+	ui_pets = "ペット",
+	ui_pets_hint = "最強の{1}匹が有効：収入 +{2}%",
+	ui_no_pets = "まだペットがいません。たまごをかえそう！",
+	ui_hatch = "かえす",
+	egg_Basic = "隕石のたまご",
+	egg_Cosmic = "宇宙のたまご",
+	msg_pet_rare = "{1}が伝説のペットをゲット！",
+	ui_hatched = "ゲット：{1}！",
 }
 
 Lang.ko = {
@@ -601,6 +665,14 @@ Lang.ko = {
 	rarity_Common = "일반",
 	rarity_Rare = "희귀",
 	rarity_Legendary = "전설",
+	ui_pets = "펫",
+	ui_pets_hint = "가장 강한 펫 {1}마리가 적용 중: 수익 +{2}%",
+	ui_no_pets = "아직 펫이 없어요. 알을 부화시키세요!",
+	ui_hatch = "부화",
+	egg_Basic = "운석 알",
+	egg_Cosmic = "우주 알",
+	msg_pet_rare = "{1}님이 전설 펫을 부화시켰어요!",
+	ui_hatched = "획득: {1}!",
 }
 
 Lang.pl = {
@@ -676,6 +748,14 @@ Lang.pl = {
 	rarity_Common = "Zwykły",
 	rarity_Rare = "Rzadki",
 	rarity_Legendary = "Legendarny",
+	ui_pets = "Zwierzaki",
+	ui_pets_hint = "Twoje {1} najlepsze zwierzaki są aktywne: +{2}% zarobków.",
+	ui_no_pets = "Brak zwierzaków. Wykluj jajko!",
+	ui_hatch = "Wykluj",
+	egg_Basic = "Jajko meteorytu",
+	egg_Cosmic = "Kosmiczne jajko",
+	msg_pet_rare = "{1} wykluł legendarnego zwierzaka!",
+	ui_hatched = "Zdobyłeś: {1}!",
 }
 
 Lang.pt = {
@@ -751,6 +831,14 @@ Lang.pt = {
 	rarity_Common = "Comum",
 	rarity_Rare = "Raro",
 	rarity_Legendary = "Lendário",
+	ui_pets = "Mascotes",
+	ui_pets_hint = "Seus {1} melhores mascotes estão ativos: +{2}% de ganhos.",
+	ui_no_pets = "Nenhum mascote ainda. Choque um ovo!",
+	ui_hatch = "Chocar",
+	egg_Basic = "Ovo de meteoro",
+	egg_Cosmic = "Ovo cósmico",
+	msg_pet_rare = "{1} chocou um mascote lendário!",
+	ui_hatched = "Você conseguiu: {1}!",
 }
 
 Lang.ru = {
@@ -826,6 +914,14 @@ Lang.ru = {
 	rarity_Common = "Обычный",
 	rarity_Rare = "Редкий",
 	rarity_Legendary = "Легендарный",
+	ui_pets = "Питомцы",
+	ui_pets_hint = "Твои {1} лучших питомца активны: +{2}% к доходу.",
+	ui_no_pets = "Питомцев пока нет. Вылупи яйцо!",
+	ui_hatch = "Вылупить",
+	egg_Basic = "Метеоритное яйцо",
+	egg_Cosmic = "Космическое яйцо",
+	msg_pet_rare = "{1} вылупил легендарного питомца!",
+	ui_hatched = "Ты получил: {1}!",
 }
 
 Lang.th = {
@@ -901,6 +997,14 @@ Lang.th = {
 	rarity_Common = "ธรรมดา",
 	rarity_Rare = "หายาก",
 	rarity_Legendary = "ตำนาน",
+	ui_pets = "สัตว์เลี้ยง",
+	ui_pets_hint = "สัตว์เลี้ยงที่เก่งที่สุด {1} ตัวกำลังทำงาน: รายได้ +{2}%",
+	ui_no_pets = "ยังไม่มีสัตว์เลี้ยง ไปฟักไข่กัน!",
+	ui_hatch = "ฟัก",
+	egg_Basic = "ไข่อุกกาบาต",
+	egg_Cosmic = "ไข่จักรวาล",
+	msg_pet_rare = "{1} ฟักสัตว์เลี้ยงระดับตำนานได้แล้ว!",
+	ui_hatched = "คุณได้รับ: {1}!",
 }
 
 Lang.tr = {
@@ -976,6 +1080,14 @@ Lang.tr = {
 	rarity_Common = "Sıradan",
 	rarity_Rare = "Nadir",
 	rarity_Legendary = "Efsanevi",
+	ui_pets = "Evcil hayvanlar",
+	ui_pets_hint = "En iyi {1} evcil hayvanın aktif: +{2}% kazanç.",
+	ui_no_pets = "Henüz evcil hayvanın yok. Bir yumurta kır!",
+	ui_hatch = "Kır",
+	egg_Basic = "Göktaşı yumurtası",
+	egg_Cosmic = "Kozmik yumurta",
+	msg_pet_rare = "{1} efsanevi bir evcil hayvan çıkardı!",
+	ui_hatched = "Elde ettin: {1}!",
 }
 
 Lang.vi = {
@@ -1051,6 +1163,14 @@ Lang.vi = {
 	rarity_Common = "Thường",
 	rarity_Rare = "Hiếm",
 	rarity_Legendary = "Huyền thoại",
+	ui_pets = "Thú cưng",
+	ui_pets_hint = "{1} thú cưng mạnh nhất đang hoạt động: +{2}% thu nhập.",
+	ui_no_pets = "Chưa có thú cưng. Hãy ấp một quả trứng!",
+	ui_hatch = "Ấp",
+	egg_Basic = "Trứng thiên thạch",
+	egg_Cosmic = "Trứng vũ trụ",
+	msg_pet_rare = "{1} vừa ấp ra thú cưng huyền thoại!",
+	ui_hatched = "Bạn nhận được: {1}!",
 }
 
 Lang.zh = {
@@ -1126,6 +1246,14 @@ Lang.zh = {
 	rarity_Common = "普通",
 	rarity_Rare = "稀有",
 	rarity_Legendary = "传说",
+	ui_pets = "宠物",
+	ui_pets_hint = "最强的 {1} 只宠物已出战：收益 +{2}%",
+	ui_no_pets = "还没有宠物，快去孵蛋吧！",
+	ui_hatch = "孵化",
+	egg_Basic = "陨石蛋",
+	egg_Cosmic = "宇宙蛋",
+	msg_pet_rare = "{1} 孵出了传说宠物！",
+	ui_hatched = "你获得了：{1}！",
 }
 
 return Lang
