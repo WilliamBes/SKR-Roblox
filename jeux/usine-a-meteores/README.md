@@ -22,6 +22,10 @@ Tycoon incrémental : des météores tombent sur ton usine, tu les ramasses en p
 
 Tous les réglages (prix, vitesses, chances) sont dans [`src/shared/Config.luau`](src/shared/Config.luau).
 
+## Équilibrage
+
+`./outils/simulation.sh` simule un joueur qui joue bien et affiche le temps entre deux rebirths (il faut le programme [luau](https://github.com/luau-lang/luau/releases)). Réglage actuel : premier rebirth au bout de 8 minutes pour un joueur parfait, donc 15 à 25 minutes pour un vrai joueur, puis des rebirths de plus en plus longs (1 heure vers le 10e). Après avoir changé des prix dans `Config.luau`, relance la simulation.
+
 ## Tester dans Studio (10 minutes)
 
 1. Ouvre Roblox Studio, crée une place vide (*Baseplate*).

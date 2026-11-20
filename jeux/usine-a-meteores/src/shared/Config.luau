@@ -30,7 +30,7 @@ Config.Upgrades = {
 }
 Config.UpgradeOrder = { "MeteorValue", "SpawnRate", "Refinery", "Magnet" }
 
-Config.Rebirth = { baseCost = 25000, growth = 4, bonusPerRebirth = 0.5 }
+Config.Rebirth = { baseCost = 400000, growth = 2.5, bonusPerRebirth = 0.75 }
 
 Config.Meteor = {
 	baseInterval = 2.5, -- secondes entre deux météores au niveau 0
