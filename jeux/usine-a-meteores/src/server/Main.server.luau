@@ -15,11 +15,12 @@ local MeteorService = require(Services.MeteorService)
 local ShopService = require(Services.ShopService)
 local RewardService = require(Services.RewardService)
 local LeaderboardService = require(Services.LeaderboardService)
+local PetService = require(Services.PetService)
 
 -- Remotes (communication serveur <-> client)
 local remotes = Instance.new("Folder")
 remotes.Name = "Remotes"
-for _, name in { "State", "Action", "Collected", "Impact", "Announce", "Notify" } do
+for _, name in { "State", "Action", "Collected", "Impact", "Announce", "Notify", "Hatched" } do
 	local remote = Instance.new("RemoteEvent")
 	remote.Name = name
 	remote.Parent = remotes
@@ -39,6 +40,7 @@ local template = {
 	lastDaily = 0,
 	dailyStreak = 0,
 	codesUsed = {},
+	pets = {},
 }
 for key in Config.Upgrades do
 	template.upgrades[key] = 0
@@ -74,6 +76,7 @@ local function onLoaded(player: Player, data)
 	end
 
 	RewardService.setupPlayer(player)
+	PetService.setupPlayer(player, data)
 	EconomyService.setupPlayer(player, data)
 end
 
@@ -86,6 +89,7 @@ EconomyService.init(store, remotes)
 MeteorService.init(remotes)
 ShopService.init(store)
 RewardService.init()
+PetService.init(remotes)
 LeaderboardService.init(store)
 store.Loaded:Connect(onLoaded)
 

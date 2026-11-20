@@ -14,6 +14,12 @@ local remotes: Folder
 local dirty: { [Player]: boolean } = {}
 local actionHandlers: { [string]: (Player, any) -> () } = {}
 local stateExtras: { (Player, any, { [string]: any }) -> () } = {}
+local multipliers: { (Player, any) -> number } = {}
+
+-- Permet aux autres services d'ajouter un multiplicateur de gains (ex : familiers)
+function EconomyService.registerMultiplier(fn: (Player, any) -> number)
+	table.insert(multipliers, fn)
+end
 
 -- Permet aux autres services d'ajouter des actions client (ex : "claimGift")
 function EconomyService.registerAction(name: string, handler: (Player, any) -> ())
@@ -49,6 +55,9 @@ function EconomyService.multiplier(player: Player): number
 	end
 	if EconomyService.boostRemaining(data) > 0 then
 		mult *= Config.Boost.multiplier
+	end
+	for _, fn in multipliers do
+		mult *= fn(player, data)
 	end
 	return mult
 end

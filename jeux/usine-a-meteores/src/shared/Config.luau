@@ -104,6 +104,61 @@ Config.RebirthColors = {
 
 Config.Leaderboard = { refreshSeconds = 120, size = 10 }
 
+-- Familiers : ils restent après un rebirth et donnent un bonus de gains (les meilleurs sont actifs)
+Config.PetSlots = 3
+Config.Pets = {
+	Comet = { bonus = 0.10, color = Color3.fromRGB(255, 150, 60), size = 1.6 },
+	Moonling = { bonus = 0.25, color = Color3.fromRGB(120, 200, 255), size = 1.8 },
+	Nova = { bonus = 0.60, color = Color3.fromRGB(190, 110, 255), size = 2.0 },
+	Phoenix = { bonus = 1.50, color = Color3.fromRGB(255, 80, 60), size = 2.4 },
+}
+Config.PetOrder = { "Comet", "Moonling", "Nova", "Phoenix" }
+-- Poids de tirage : plus le nombre est grand, plus le familier est fréquent
+Config.Eggs = {
+	Basic = { cost = 20000, weights = { Comet = 70, Moonling = 26, Nova = 4 } },
+	Cosmic = { cost = 2000000, weights = { Moonling = 55, Nova = 38, Phoenix = 7 } },
+}
+Config.EggOrder = { "Basic", "Cosmic" }
+
+function Config.petBonus(pets: { [string]: number }): number
+	local bonuses = {}
+	for key, count in pets do
+		local pet = Config.Pets[key]
+		if pet then
+			for _ = 1, count do
+				table.insert(bonuses, pet.bonus)
+			end
+		end
+	end
+	table.sort(bonuses, function(a, b)
+		return a > b
+	end)
+	local total = 0
+	for i = 1, math.min(Config.PetSlots, #bonuses) do
+		total += bonuses[i]
+	end
+	return total
+end
+
+-- Liste des familiers actifs (les meilleurs), du plus fort au plus faible
+function Config.equippedPets(pets: { [string]: number }): { string }
+	local list = {}
+	for key, count in pets do
+		if Config.Pets[key] then
+			for _ = 1, count do
+				table.insert(list, key)
+			end
+		end
+	end
+	table.sort(list, function(a, b)
+		return Config.Pets[a].bonus > Config.Pets[b].bonus
+	end)
+	while #list > Config.PetSlots do
+		table.remove(list)
+	end
+	return list
+end
+
 function Config.upgradeCost(key: string, level: number): number
 	local u = Config.Upgrades[key]
 	return math.floor(u.baseCost * u.growth ^ level)

@@ -183,7 +183,6 @@ local list = make("Frame", {
 
 local upgradeButtons = {}
 for order, key in Config.UpgradeOrder do
-	local upgrade = Config.Upgrades[key]
 	local card = make("Frame", {
 		LayoutOrder = order,
 		Size = UDim2.new(1, 0, 0, 74),
@@ -780,6 +779,123 @@ button({
 	toggle(codesFrame)
 end)
 
+-- Familiers
+local PET_COLOR = Color3.fromRGB(190, 110, 255)
+local petsFrame = panel(tr("ui_pets"), 580, 440, PET_COLOR)
+table.insert(openPanels, petsFrame)
+local petsHint = label({
+	Position = UDim2.fromOffset(14, 50),
+	Size = UDim2.new(1, -28, 0, 24),
+	Text = "",
+	Font = Enum.Font.Gotham,
+	Parent = petsFrame,
+})
+local eggRow = make("Frame", {
+	Position = UDim2.fromOffset(14, 80),
+	Size = UDim2.new(1, -28, 0, 150),
+	BackgroundTransparency = 1,
+	Parent = petsFrame,
+}, { make("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 10) }) })
+
+local eggButtons = {}
+for _, key in Config.EggOrder do
+	local egg = Config.Eggs[key]
+	local card = make("Frame", { Size = UDim2.new(0.5, -5, 1, 0), BackgroundColor3 = COLORS.panelLight, Parent = eggRow }, { corner(12) })
+	label({ Position = UDim2.fromOffset(10, 6), Size = UDim2.new(1, -20, 0, 30), Text = "🥚 " .. tr("egg_" .. key), TextColor3 = PET_COLOR, Parent = card })
+	-- Chances de tirage affichées au joueur
+	local total = 0
+	for _, weight in egg.weights do
+		total += weight
+	end
+	local odds = {}
+	for _, petKey in Config.PetOrder do
+		local weight = egg.weights[petKey]
+		if weight then
+			table.insert(odds, string.format("%s %g%%", tr("pet_" .. petKey), math.floor(weight / total * 1000 + 0.5) / 10))
+		end
+	end
+	label({
+		Position = UDim2.fromOffset(10, 40),
+		Size = UDim2.new(1, -20, 0, 54),
+		Text = table.concat(odds, "\n"),
+		Font = Enum.Font.Gotham,
+		TextWrapped = true,
+		Parent = card,
+	})
+	eggButtons[key] = button({
+		Position = UDim2.new(0, 10, 1, -48),
+		Size = UDim2.new(1, -20, 0, 40),
+		BackgroundColor3 = COLORS.grey,
+		Text = tr("ui_hatch") .. " · " .. Format.number(egg.cost) .. " $",
+		Parent = card,
+	}, function()
+		remotes.Action:FireServer("hatch", key)
+	end)
+end
+
+local petList = make("ScrollingFrame", {
+	Position = UDim2.fromOffset(14, 240),
+	Size = UDim2.new(1, -28, 1, -254),
+	BackgroundTransparency = 1,
+	BorderSizePixel = 0,
+	ScrollBarThickness = 6,
+	AutomaticCanvasSize = Enum.AutomaticSize.Y,
+	CanvasSize = UDim2.new(),
+	Parent = petsFrame,
+}, {
+	make("UIGridLayout", {
+		CellSize = UDim2.new(0.25, -8, 0, 70),
+		CellPadding = UDim2.fromOffset(8, 8),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}),
+})
+local petCells = {}
+for order, key in Config.PetOrder do
+	local info = Config.Pets[key]
+	local cell = make("Frame", { LayoutOrder = order, BackgroundColor3 = COLORS.panelLight, Visible = false, Parent = petList }, { corner(10), stroke(info.color, 2) })
+	label({ Position = UDim2.fromOffset(6, 4), Size = UDim2.new(1, -12, 0, 24), Text = tr("pet_" .. key), TextColor3 = info.color, Parent = cell })
+	label({ Position = UDim2.fromOffset(6, 30), Size = UDim2.new(1, -12, 0, 16), Text = "+" .. math.floor(info.bonus * 100 + 0.5) .. "%", Font = Enum.Font.Gotham, Parent = cell })
+	petCells[key] = label({ Position = UDim2.fromOffset(6, 48), Size = UDim2.new(1, -12, 0, 18), Text = "", Parent = cell })
+end
+local noPets = label({
+	Position = UDim2.fromOffset(14, 250),
+	Size = UDim2.new(1, -28, 0, 30),
+	Text = tr("ui_no_pets"),
+	Font = Enum.Font.Gotham,
+	Parent = petsFrame,
+})
+
+button({
+	AnchorPoint = Vector2.new(0, 0.5),
+	Position = UDim2.new(0, 10, 0.5, 150),
+	Size = UDim2.fromOffset(130, 60),
+	BackgroundColor3 = PET_COLOR,
+	Text = tr("ui_pets"),
+	Parent = gui,
+}, function()
+	toggle(petsFrame)
+end)
+
+remotes.Hatched.OnClientEvent:Connect(function(petKey: string)
+	toast(tr("ui_hatched", { tr("pet_" .. petKey) }), "reward")
+end)
+
+local function refreshPets(newState)
+	local pets = newState.pets or {}
+	local any = false
+	for key, cellLabel in petCells do
+		local count = pets[key] or 0
+		cellLabel.Parent.Visible = count > 0
+		cellLabel.Text = "x" .. count
+		any = any or count > 0
+	end
+	noPets.Visible = not any
+	petsHint.Text = tr("ui_pets_hint", { Config.PetSlots, math.floor((newState.petBonus or 0) * 100 + 0.5) })
+	for key, b in eggButtons do
+		b.BackgroundColor3 = newState.cash >= Config.Eggs[key].cost and COLORS.green or COLORS.grey
+	end
+end
+
 -- La boutique ferme les autres fenêtres
 shopToggle.Activated:Connect(function()
 	for _, other in openPanels do
@@ -811,6 +927,7 @@ local dailyShown = false
 remotes.State.OnClientEvent:Connect(function(newState)
 	currentPlot = newState.plotModel
 	currentQuest = newState.quest
+	refreshPets(newState)
 
 	local quest = newState.quest
 	questFrame.Visible = quest ~= nil
