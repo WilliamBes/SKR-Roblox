@@ -5,6 +5,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local PlayerData = require(ServerScriptService.Commun.PlayerData)
+local T = require(ReplicatedStorage.Shared.T)
 
 local Services = script.Parent.Services
 local PlotService = require(Services.PlotService)
@@ -55,7 +56,7 @@ local function onLoaded(player: Player, data)
 	end
 	local plot = PlotService.assign(player)
 	if not plot then
-		player:Kick("Le serveur est plein, rejoins-en un autre !")
+		player:Kick(T:get(player.LocaleId, "kick_full"))
 		return
 	end
 	PlotService.updateVisuals(plot, data)
@@ -76,7 +77,11 @@ local function onLoaded(player: Player, data)
 	EconomyService.setupPlayer(player, data)
 end
 
-store = PlayerData.new(Config.DataStoreName, template)
+store = PlayerData.new(Config.DataStoreName, template, {
+	kickMessage = function(player: Player)
+		return T:get(player.LocaleId, "kick_data")
+	end,
+})
 EconomyService.init(store, remotes)
 MeteorService.init(remotes)
 ShopService.init(store)

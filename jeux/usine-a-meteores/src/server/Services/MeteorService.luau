@@ -106,7 +106,7 @@ function MeteorService.spawn(plot, forceLegendary: boolean?)
 		meteor:SetAttribute("Landed", true)
 		remotes.Impact:FireAllClients(landing, rarity.key)
 		if rarity.key == "Légendaire" then
-			remotes.Announce:FireAllClients(player.DisplayName .. " a reçu un météore LÉGENDAIRE !", "legendary")
+			remotes.Announce:FireAllClients("msg_legendary", { player.DisplayName }, "legendary")
 		end
 		if PassService.owns(player, "AutoCollect") then
 			task.delay(0.4, function()
