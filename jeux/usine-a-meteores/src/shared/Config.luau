@@ -52,6 +52,58 @@ Config.LuckyMultiplier = 3
 
 Config.Plot = { count = 6, size = 72, ringRadius = 110 }
 
+-- Objectifs du tutoriel, dans l'ordre. type : collect, upgrade, earned, rebirth
+Config.Quests = {
+	{ text = "Marche sur les météores pour en ramasser 10", type = "collect", target = 10, reward = 60 },
+	{ text = "Achète l'amélioration Valeur", type = "upgrade", key = "MeteorValue", target = 1, reward = 80 },
+	{ text = "Achète l'amélioration Fréquence", type = "upgrade", key = "SpawnRate", target = 1, reward = 120 },
+	{ text = "Construis ta Raffinerie", type = "upgrade", key = "Refinery", target = 1, reward = 250 },
+	{ text = "Ramasse 150 météores", type = "collect", target = 150, reward = 800 },
+	{ text = "Monte la Valeur au niveau 10", type = "upgrade", key = "MeteorValue", target = 10, reward = 2500 },
+	{ text = "Gagne 25K $ au total", type = "earned", target = 25000, reward = 5000 },
+	{ text = "Fais ton premier rebirth", type = "rebirth", target = 1, reward = 10000 },
+}
+
+-- Cadeaux de temps de jeu (minutes depuis l'arrivée sur le serveur) et valeur en minutes de revenu
+Config.Gifts = {
+	{ minutes = 3, incomeMinutes = 2 },
+	{ minutes = 8, incomeMinutes = 4 },
+	{ minutes = 15, incomeMinutes = 6, boostSeconds = 120 },
+	{ minutes = 25, incomeMinutes = 10 },
+	{ minutes = 40, incomeMinutes = 15, boostSeconds = 300 },
+}
+Config.GiftMinimum = 150
+
+-- Récompense quotidienne : minutes de revenu par jour de série (le jour 7 et plus donne le maximum)
+Config.Daily = { incomeMinutesPerDay = 3, maxStreak = 7, minimum = 300 }
+
+-- Codes promo (en MAJUSCULES). cash = argent fixe, incomeMinutes = minutes de revenu, boostSeconds = boost x3
+Config.Codes = {
+	LANCEMENT = { incomeMinutes = 5, boostSeconds = 300 },
+	METEORE = { cash = 1000 },
+}
+
+-- Sons. Les rbxasset:// sont fournis avec Roblox ; tu peux les remplacer par des ID du Creator Store
+-- (onglet Toolbox > Audio) au format "rbxassetid://123456".
+Config.Sounds = {
+	collect = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.35 },
+	impact = { id = "rbxasset://sounds/collide.wav", volume = 0.5 },
+	buy = { id = "rbxasset://sounds/button.wav", volume = 0.6 },
+	reward = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.8, pitch = 0.7 },
+}
+
+-- Couleur de la bordure de l'usine selon le nombre de rebirths
+Config.RebirthColors = {
+	Color3.fromRGB(255, 120, 40),
+	Color3.fromRGB(60, 200, 255),
+	Color3.fromRGB(150, 70, 230),
+	Color3.fromRGB(70, 220, 110),
+	Color3.fromRGB(255, 60, 90),
+	Color3.fromRGB(255, 220, 50),
+}
+
+Config.Leaderboard = { refreshSeconds = 120, size = 10 }
+
 function Config.upgradeCost(key: string, level: number): number
 	local u = Config.Upgrades[key]
 	return math.floor(u.baseCost * u.growth ^ level)
@@ -93,6 +145,12 @@ function Config.estimatedIncome(upgrades): number
 	end
 	return Config.meteorValue(upgrades.MeteorValue or 0) * averageRarity * meteorsPerSecond
 		+ Config.refineryIncome(upgrades.Refinery or 0)
+end
+
+-- Récompense = X minutes de revenu estimé (avec le bonus de rebirth), avec un minimum
+function Config.incomeReward(data, minutes: number, minimum: number): number
+	local perSecond = Config.estimatedIncome(data.upgrades) * Config.rebirthMultiplier(data.rebirths)
+	return math.floor(math.max(minimum, perSecond * 60 * minutes))
 end
 
 return Config

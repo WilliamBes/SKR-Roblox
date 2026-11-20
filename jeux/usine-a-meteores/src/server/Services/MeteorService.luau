@@ -1,5 +1,4 @@
 -- Fait tomber les météores sur chaque usine et gère leur ramassage.
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -39,6 +38,10 @@ local function collect(player: Player, meteor: BasePart)
 		return
 	end
 	meteor:SetAttribute("Collected", true)
+	local data = EconomyService.data(player)
+	if data then
+		data.meteorsCollected += 1
+	end
 	local earned = EconomyService.earn(player, meteor:GetAttribute("Value") or 0)
 	remotes.Collected:FireClient(player, earned, meteor.Position, meteor:GetAttribute("Rarity"))
 	meteor:Destroy()

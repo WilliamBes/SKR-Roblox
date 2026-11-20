@@ -12,6 +12,22 @@ local EconomyService = {}
 local store -- PlayerData
 local remotes: Folder
 local dirty: { [Player]: boolean } = {}
+local actionHandlers: { [string]: (Player, any) -> () } = {}
+local stateExtras: { (Player, any, { [string]: any }) -> () } = {}
+
+-- Permet aux autres services d'ajouter des actions client (ex : "claimGift")
+function EconomyService.registerAction(name: string, handler: (Player, any) -> ())
+	actionHandlers[name] = handler
+end
+
+-- Permet aux autres services d'ajouter des infos dans l'état envoyé au client
+function EconomyService.registerStateExtra(fn: (Player, any, { [string]: any }) -> ())
+	table.insert(stateExtras, fn)
+end
+
+function EconomyService.notify(player: Player, message: string, kind: string?)
+	remotes.Notify:FireClient(player, message, kind or "info")
+end
 
 function EconomyService.data(player: Player)
 	return store and store:get(player)
@@ -54,8 +70,7 @@ local function sendState(player: Player)
 	if not data then
 		return
 	end
-	updateLeaderstats(player, data)
-	remotes.State:FireClient(player, {
+	local state = {
 		cash = data.cash,
 		rebirths = data.rebirths,
 		upgrades = data.upgrades,
@@ -63,7 +78,13 @@ local function sendState(player: Player)
 		multiplier = EconomyService.multiplier(player),
 		passiveIncome = Config.refineryIncome(data.upgrades.Refinery) * EconomyService.multiplier(player),
 		passes = PassService.all(player),
-	})
+		plotModel = (PlotService.get(player) or {}).model,
+	}
+	for _, extra in stateExtras do
+		extra(player, data, state)
+	end
+	updateLeaderstats(player, data)
+	remotes.State:FireClient(player, state)
 end
 
 -- Ajoute de l'argent (montant de base, les multiplicateurs sont appliqués ici). Renvoie le montant réel.
@@ -106,11 +127,9 @@ function EconomyService.buyUpgrade(player: Player, key: string)
 	end
 	data.cash -= cost
 	data.upgrades[key] = level + 1
-	if key == "Refinery" then
-		local plot = PlotService.get(player)
-		if plot then
-			PlotService.updateRefinery(plot, level + 1)
-		end
+	local plot = PlotService.get(player)
+	if plot then
+		PlotService.updateVisuals(plot, data)
 	end
 	EconomyService.pushState(player)
 end
@@ -131,7 +150,7 @@ function EconomyService.rebirth(player: Player)
 	end
 	local plot = PlotService.get(player)
 	if plot then
-		PlotService.updateRefinery(plot, 0)
+		PlotService.updateVisuals(plot, data)
 		plot.meteors:ClearAllChildren()
 	end
 	remotes.Announce:FireAllClients(
@@ -186,6 +205,8 @@ function EconomyService.init(playerData, remoteFolder: Folder)
 			EconomyService.buyUpgrade(player, arg)
 		elseif action == "rebirth" then
 			EconomyService.rebirth(player)
+		elseif typeof(action) == "string" and actionHandlers[action] then
+			actionHandlers[action](player, arg)
 		end
 	end)
 	Players.PlayerRemoving:Connect(function(player)
@@ -222,9 +243,12 @@ function EconomyService.init(playerData, remoteFolder: Folder)
 	task.spawn(function()
 		while true do
 			task.wait(0.2)
-			for player in dirty do
-				dirty[player] = nil
-				sendState(player)
+			local toSend = dirty
+			dirty = {}
+			for player in toSend do
+				if player.Parent then
+					sendState(player)
+				end
 			end
 		end
 	end)

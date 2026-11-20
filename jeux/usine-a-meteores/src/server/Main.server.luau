@@ -12,11 +12,13 @@ local PassService = require(Services.PassService)
 local EconomyService = require(Services.EconomyService)
 local MeteorService = require(Services.MeteorService)
 local ShopService = require(Services.ShopService)
+local RewardService = require(Services.RewardService)
+local LeaderboardService = require(Services.LeaderboardService)
 
 -- Remotes (communication serveur <-> client)
 local remotes = Instance.new("Folder")
 remotes.Name = "Remotes"
-for _, name in { "State", "Action", "Collected", "Impact", "Announce" } do
+for _, name in { "State", "Action", "Collected", "Impact", "Announce", "Notify" } do
 	local remote = Instance.new("RemoteEvent")
 	remote.Name = name
 	remote.Parent = remotes
@@ -31,6 +33,11 @@ local template = {
 	boostUntil = 0,
 	purchases = {},
 	robuxSpent = 0,
+	meteorsCollected = 0,
+	questIndex = 1,
+	lastDaily = 0,
+	dailyStreak = 0,
+	codesUsed = {},
 }
 for key in Config.Upgrades do
 	template.upgrades[key] = 0
@@ -51,7 +58,7 @@ local function onLoaded(player: Player, data)
 		player:Kick("Le serveur est plein, rejoins-en un autre !")
 		return
 	end
-	PlotService.updateRefinery(plot, data.upgrades.Refinery)
+	PlotService.updateVisuals(plot, data)
 
 	local function placeCharacter(character: Model)
 		local root = character:WaitForChild("HumanoidRootPart", 10)
@@ -65,6 +72,7 @@ local function onLoaded(player: Player, data)
 		task.spawn(placeCharacter, player.Character)
 	end
 
+	RewardService.setupPlayer(player)
 	EconomyService.setupPlayer(player, data)
 end
 
@@ -72,6 +80,8 @@ store = PlayerData.new(Config.DataStoreName, template)
 EconomyService.init(store, remotes)
 MeteorService.init(remotes)
 ShopService.init(store)
+RewardService.init()
+LeaderboardService.init(store)
 store.Loaded:Connect(onLoaded)
 
 -- Les joueurs déjà chargés avant la connexion (rare, surtout en test)
