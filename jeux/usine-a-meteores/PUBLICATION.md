@@ -32,7 +32,7 @@ Tout ce qu'il faut préparer à la main avant de rendre le jeu public. Compte en
 >
 > Updates every week!
 
-Pour que le code `LAUNCH` marche, remplace `LANCEMENT` par `LAUNCH` dans `Config.Codes`, ou garde `LANCEMENT` et change le texte. Ne mets dans la description que des codes qui existent vraiment.
+Le code `LAUNCH` existe déjà dans `Config.Codes`. Ne mets dans la description que des codes qui existent vraiment.
 
 **Genre** : Tycoon. **Tags utiles** : tycoon, simulator, idle, pets.
 

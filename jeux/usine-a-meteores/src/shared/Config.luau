@@ -84,6 +84,7 @@ Config.Daily = { incomeMinutesPerDay = 3, maxStreak = 7, minimum = 300 }
 -- Codes promo (en MAJUSCULES). cash = argent fixe, incomeMinutes = minutes de revenu, boostSeconds = boost x3
 Config.Codes = {
 	LANCEMENT = { incomeMinutes = 5, boostSeconds = 300 },
+	LAUNCH = { incomeMinutes = 5, boostSeconds = 300 }, -- version anglaise, pour la page du jeu
 	METEORE = { cash = 1000 },
 }
 
