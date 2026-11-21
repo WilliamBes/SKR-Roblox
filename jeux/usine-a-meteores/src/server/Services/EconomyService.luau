@@ -153,7 +153,9 @@ function EconomyService.rebirth(player: Player)
 	if data.cash < cost then
 		return
 	end
+	local worldBefore = Config.worldIndex(data.rebirths)
 	data.rebirths += 1
+	local worldAfter = Config.worldIndex(data.rebirths)
 	data.cash = 0
 	for key in data.upgrades do
 		data.upgrades[key] = 0
@@ -164,6 +166,9 @@ function EconomyService.rebirth(player: Player)
 		plot.meteors:ClearAllChildren()
 	end
 	remotes.Announce:FireAllClients("msg_rebirth", { player.DisplayName, data.rebirths }, "rebirth")
+	if worldAfter ~= worldBefore then
+		remotes.WorldUnlocked:FireClient(player, Config.Worlds[worldAfter].key)
+	end
 	EconomyService.pushState(player)
 end
 

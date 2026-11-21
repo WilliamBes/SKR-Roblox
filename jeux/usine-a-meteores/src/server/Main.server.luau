@@ -1,5 +1,6 @@
 -- Point d'entrée du serveur : crée les remotes, charge les données et démarre les services.
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
@@ -20,7 +21,7 @@ local PetService = require(Services.PetService)
 -- Remotes (communication serveur <-> client)
 local remotes = Instance.new("Folder")
 remotes.Name = "Remotes"
-for _, name in { "State", "Action", "Collected", "Impact", "Announce", "Notify", "Hatched" } do
+for _, name in { "State", "Action", "Collected", "Impact", "Announce", "Notify", "Hatched", "WorldUnlocked" } do
 	local remote = Instance.new("RemoteEvent")
 	remote.Name = name
 	remote.Parent = remotes
@@ -52,6 +53,11 @@ PassService.init()
 -- Le jeu doit être prêt avant de charger les joueurs
 local store
 local function onLoaded(player: Player, data)
+	-- Mode test (Studio seulement)
+	if RunService:IsStudio() then
+		data.cash = math.max(data.cash, Config.Studio.minCash)
+		data.rebirths = math.max(data.rebirths, Config.Studio.minRebirths)
+	end
 	PassService.load(player)
 	if player.Parent == nil then
 		return
@@ -80,7 +86,9 @@ local function onLoaded(player: Player, data)
 	EconomyService.setupPlayer(player, data)
 end
 
+local testMode = RunService:IsStudio() and (Config.Studio.minCash > 0 or Config.Studio.minRebirths > 0)
 store = PlayerData.new(Config.DataStoreName, template, {
+	noSave = testMode, -- en mode test, rien n'est sauvegardé
 	kickMessage = function(player: Player)
 		return T:get(player.LocaleId, "kick_data")
 	end,

@@ -136,7 +136,7 @@ rescale()
 local top = make("Frame", {
 	AnchorPoint = Vector2.new(0.5, 0),
 	Position = UDim2.new(0.5, 0, 0, 10),
-	Size = UDim2.fromOffset(380, 92),
+	Size = UDim2.fromOffset(380, 118),
 	BackgroundColor3 = COLORS.panel,
 	BackgroundTransparency = 0.15,
 	Parent = gui,
@@ -152,6 +152,14 @@ local infoLabel = label({
 	Position = UDim2.fromOffset(12, 56),
 	Size = UDim2.new(1, -24, 0, 26),
 	Text = "",
+	Parent = top,
+})
+local worldLabel = label({
+	Position = UDim2.fromOffset(12, 84),
+	Size = UDim2.new(1, -24, 0, 24),
+	Text = "",
+	Font = Enum.Font.Gotham,
+	TextColor3 = Color3.fromRGB(190, 200, 255),
 	Parent = top,
 })
 local boostLabel = label({
@@ -340,6 +348,15 @@ local function refresh()
 	end
 	infoLabel.Text = info
 
+	local worldIndex = Config.worldIndex(state.rebirths)
+	local worldName = tr("world_" .. Config.Worlds[worldIndex].key)
+	local nextWorld = Config.Worlds[worldIndex + 1]
+	if nextWorld then
+		worldLabel.Text = tr("ui_world_next", { worldName, nextWorld.rebirths })
+	else
+		worldLabel.Text = tr("ui_world", { worldName })
+	end
+
 	for key, ui in upgradeButtons do
 		local upgrade = Config.Upgrades[key]
 		local level = state.upgrades[key] or 0
@@ -461,7 +478,7 @@ end)
 
 local banner = label({
 	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.new(0.5, 0, 0, 150),
+	Position = UDim2.new(0.5, 0, 0, 185),
 	Size = UDim2.fromOffset(700, 50),
 	Text = "",
 	Visible = false,
@@ -874,6 +891,10 @@ button({
 	Parent = gui,
 }, function()
 	toggle(petsFrame)
+end)
+
+remotes.WorldUnlocked.OnClientEvent:Connect(function(worldKey: string)
+	toast(tr("msg_world_unlocked", { tr("world_" .. worldKey) }), "reward")
 end)
 
 remotes.Hatched.OnClientEvent:Connect(function(petKey: string)

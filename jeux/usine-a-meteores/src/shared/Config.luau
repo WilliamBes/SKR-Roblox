@@ -3,6 +3,10 @@ local Config = {}
 
 Config.DataStoreName = "UsineAMeteores_v1"
 
+-- Mode test : UNIQUEMENT dans Roblox Studio (jamais dans le vrai jeu), donne de l'argent de départ
+-- et des rebirths pour tester vite les œufs, les mondes et la boutique. Mets 0 pour désactiver.
+Config.Studio = { minCash = 0, minRebirths = 0 }
+
 -- Remplace les 0 par les ID créés dans le Creator Dashboard (Monétisation).
 -- Un ID à 0 affiche « Bientôt » dans la boutique.
 Config.GamePasses = {
@@ -187,8 +191,27 @@ function Config.rebirthCost(rebirths: number): number
 	return math.floor(Config.Rebirth.baseCost * Config.Rebirth.growth ^ rebirths)
 end
 
+-- Mondes : le monde le plus avancé débloqué grâce aux rebirths est actif automatiquement.
+-- Chaque monde multiplie tous les gains et change l'apparence de l'usine.
+Config.Worlds = {
+	{ key = "Plains", rebirths = 0, mult = 1, base = Color3.fromRGB(45, 42, 58), material = Enum.Material.Slate },
+	{ key = "Frost", rebirths = 4, mult = 2, base = Color3.fromRGB(150, 205, 235), material = Enum.Material.Ice },
+	{ key = "Magma", rebirths = 8, mult = 3.5, base = Color3.fromRGB(95, 32, 22), material = Enum.Material.Basalt },
+	{ key = "Void", rebirths = 12, mult = 6, base = Color3.fromRGB(28, 16, 55), material = Enum.Material.SmoothPlastic },
+}
+
+function Config.worldIndex(rebirths: number): number
+	local index = 1
+	for i, world in Config.Worlds do
+		if rebirths >= world.rebirths then
+			index = i
+		end
+	end
+	return index
+end
+
 function Config.rebirthMultiplier(rebirths: number): number
-	return 1 + rebirths * Config.Rebirth.bonusPerRebirth
+	return (1 + rebirths * Config.Rebirth.bonusPerRebirth) * Config.Worlds[Config.worldIndex(rebirths)].mult
 end
 
 -- Revenu moyen estimé par seconde (sans multiplicateurs), utilisé pour la Pluie d'argent

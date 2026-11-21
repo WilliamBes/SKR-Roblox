@@ -49,11 +49,13 @@ local function withRetries(label: string, fn: () -> any): (boolean, any)
 	return false, nil
 end
 
+-- options.noSave : n'écrit rien dans le DataStore (mode test : évite de polluer ta vraie sauvegarde)
 -- options.kickMessage(player) : texte affiché si les données ne peuvent pas être chargées (traduisible)
-function PlayerData.new(storeName: string, template: { [string]: any }, options: { kickMessage: ((Player) -> string)? }?)
+function PlayerData.new(storeName: string, template: { [string]: any }, options: { kickMessage: ((Player) -> string)?, noSave: boolean? }?)
 	local self = setmetatable({}, PlayerData)
 	self._template = template
 	self._kickMessage = options and options.kickMessage
+	self._noSave = options ~= nil and options.noSave == true
 	self._profiles = {} :: { [Player]: any }
 	self._loadedEvent = Instance.new("BindableEvent")
 	self.Loaded = self._loadedEvent.Event
@@ -138,7 +140,7 @@ end
 
 function PlayerData:_save(player: Player)
 	local data = self._profiles[player]
-	if not data or self._offline then
+	if not data or self._offline or self._noSave then
 		return
 	end
 	withRetries("Sauvegarde", function()

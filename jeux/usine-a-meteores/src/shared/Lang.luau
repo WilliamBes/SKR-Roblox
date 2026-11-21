@@ -88,6 +88,13 @@ Lang.en = {
 	pet_Moonling = "Moonling",
 	pet_Nova = "Nova",
 	pet_Phoenix = "Phoenix",
+	ui_world = "World: {1}",
+	ui_world_next = "World: {1} · Next at {2} rebirths",
+	msg_world_unlocked = "New world unlocked: {1}!",
+	world_Plains = "Meteor Plains",
+	world_Frost = "Frozen Wastes",
+	world_Magma = "Magma Core",
+	world_Void = "Cosmic Void",
 }
 
 Lang.de = {
@@ -171,6 +178,9 @@ Lang.de = {
 	egg_Cosmic = "Kosmisches Ei",
 	msg_pet_rare = "{1} hat ein legendäres Haustier ausgebrütet!",
 	ui_hatched = "Du hast bekommen: {1}!",
+	ui_world = "Welt: {1}",
+	ui_world_next = "Welt: {1} · Nächste bei {2} Rebirths",
+	msg_world_unlocked = "Neue Welt freigeschaltet: {1}!",
 }
 
 Lang.es = {
@@ -254,6 +264,9 @@ Lang.es = {
 	egg_Cosmic = "Huevo cósmico",
 	msg_pet_rare = "¡{1} sacó una mascota legendaria!",
 	ui_hatched = "¡Conseguiste: {1}!",
+	ui_world = "Mundo: {1}",
+	ui_world_next = "Mundo: {1} · Siguiente con {2} renacimientos",
+	msg_world_unlocked = "¡Nuevo mundo desbloqueado: {1}!",
 }
 
 Lang.fr = {
@@ -341,6 +354,13 @@ Lang.fr = {
 	pet_Moonling = "Petite Lune",
 	pet_Nova = "Nova",
 	pet_Phoenix = "Phénix",
+	ui_world = "Monde : {1}",
+	ui_world_next = "Monde : {1} · Suivant à {2} rebirths",
+	msg_world_unlocked = "Nouveau monde débloqué : {1} !",
+	world_Plains = "Plaines des Météores",
+	world_Frost = "Terres Glacées",
+	world_Magma = "Cœur de Magma",
+	world_Void = "Vide Cosmique",
 }
 
 Lang.id = {
@@ -424,6 +444,9 @@ Lang.id = {
 	egg_Cosmic = "Telur kosmik",
 	msg_pet_rare = "{1} menetaskan peliharaan legendaris!",
 	ui_hatched = "Kamu mendapat: {1}!",
+	ui_world = "Dunia: {1}",
+	ui_world_next = "Dunia: {1} · Berikutnya di {2} lahir ulang",
+	msg_world_unlocked = "Dunia baru terbuka: {1}!",
 }
 
 Lang.it = {
@@ -507,6 +530,9 @@ Lang.it = {
 	egg_Cosmic = "Uovo cosmico",
 	msg_pet_rare = "{1} ha schiuso un animaletto leggendario!",
 	ui_hatched = "Hai ottenuto: {1}!",
+	ui_world = "Mondo: {1}",
+	ui_world_next = "Mondo: {1} · Prossimo a {2} rinascite",
+	msg_world_unlocked = "Nuovo mondo sbloccato: {1}!",
 }
 
 Lang.ja = {
@@ -590,6 +616,9 @@ Lang.ja = {
 	egg_Cosmic = "宇宙のたまご",
 	msg_pet_rare = "{1}が伝説のペットをゲット！",
 	ui_hatched = "ゲット：{1}！",
+	ui_world = "ワールド：{1}",
+	ui_world_next = "ワールド：{1} · 次はリバース{2}回で解放",
+	msg_world_unlocked = "新しいワールドを解放：{1}！",
 }
 
 Lang.ko = {
@@ -673,6 +702,9 @@ Lang.ko = {
 	egg_Cosmic = "우주 알",
 	msg_pet_rare = "{1}님이 전설 펫을 부화시켰어요!",
 	ui_hatched = "획득: {1}!",
+	ui_world = "월드: {1}",
+	ui_world_next = "월드: {1} · 다음은 환생 {2}회",
+	msg_world_unlocked = "새 월드 해금: {1}!",
 }
 
 Lang.pl = {
@@ -756,6 +788,9 @@ Lang.pl = {
 	egg_Cosmic = "Kosmiczne jajko",
 	msg_pet_rare = "{1} wykluł legendarnego zwierzaka!",
 	ui_hatched = "Zdobyłeś: {1}!",
+	ui_world = "Świat: {1}",
+	ui_world_next = "Świat: {1} · Następny po {2} odrodzeniach",
+	msg_world_unlocked = "Odblokowano nowy świat: {1}!",
 }
 
 Lang.pt = {
@@ -839,6 +874,9 @@ Lang.pt = {
 	egg_Cosmic = "Ovo cósmico",
 	msg_pet_rare = "{1} chocou um mascote lendário!",
 	ui_hatched = "Você conseguiu: {1}!",
+	ui_world = "Mundo: {1}",
+	ui_world_next = "Mundo: {1} · Próximo com {2} renascimentos",
+	msg_world_unlocked = "Novo mundo desbloqueado: {1}!",
 }
 
 Lang.ru = {
@@ -922,6 +960,9 @@ Lang.ru = {
 	egg_Cosmic = "Космическое яйцо",
 	msg_pet_rare = "{1} вылупил легендарного питомца!",
 	ui_hatched = "Ты получил: {1}!",
+	ui_world = "Мир: {1}",
+	ui_world_next = "Мир: {1} · Следующий при {2} перерождениях",
+	msg_world_unlocked = "Новый мир открыт: {1}!",
 }
 
 Lang.th = {
@@ -1005,6 +1046,9 @@ Lang.th = {
 	egg_Cosmic = "ไข่จักรวาล",
 	msg_pet_rare = "{1} ฟักสัตว์เลี้ยงระดับตำนานได้แล้ว!",
 	ui_hatched = "คุณได้รับ: {1}!",
+	ui_world = "โลก: {1}",
+	ui_world_next = "โลก: {1} · ถัดไปที่รีเบิร์ธ {2} ครั้ง",
+	msg_world_unlocked = "ปลดล็อกโลกใหม่: {1}!",
 }
 
 Lang.tr = {
@@ -1088,6 +1132,9 @@ Lang.tr = {
 	egg_Cosmic = "Kozmik yumurta",
 	msg_pet_rare = "{1} efsanevi bir evcil hayvan çıkardı!",
 	ui_hatched = "Elde ettin: {1}!",
+	ui_world = "Dünya: {1}",
+	ui_world_next = "Dünya: {1} · Sonraki: {2} yeniden doğuş",
+	msg_world_unlocked = "Yeni dünya açıldı: {1}!",
 }
 
 Lang.vi = {
@@ -1171,6 +1218,9 @@ Lang.vi = {
 	egg_Cosmic = "Trứng vũ trụ",
 	msg_pet_rare = "{1} vừa ấp ra thú cưng huyền thoại!",
 	ui_hatched = "Bạn nhận được: {1}!",
+	ui_world = "Thế giới: {1}",
+	ui_world_next = "Thế giới: {1} · Tiếp theo ở {2} lần tái sinh",
+	msg_world_unlocked = "Mở khóa thế giới mới: {1}!",
 }
 
 Lang.zh = {
@@ -1254,6 +1304,9 @@ Lang.zh = {
 	egg_Cosmic = "宇宙蛋",
 	msg_pet_rare = "{1} 孵出了传说宠物！",
 	ui_hatched = "你获得了：{1}！",
+	ui_world = "世界：{1}",
+	ui_world_next = "世界：{1} · 下一个需要转生 {2} 次",
+	msg_world_unlocked = "解锁新世界：{1}！",
 }
 
 return Lang

@@ -7,6 +7,8 @@ cd "$(dirname "$0")"
 TMP="$(mktemp --suffix=.luau)"
 {
   echo "local COUNT, RATIO = '${1:-10}', '${2:-0.7}'"
+  # Roblox n'existe pas ici : on fournit un faux Enum pour que Config se charge
+  echo "local Enum = setmetatable({}, { __index = function() return setmetatable({}, { __index = function() return 0 end }) end })"
   # Config sans les couleurs Roblox (inutiles ici)
   sed -e 's/Color3\.fromRGB([^)]*)/0/g' ../src/shared/Config.luau | sed '$d'
   cat simulation.luau

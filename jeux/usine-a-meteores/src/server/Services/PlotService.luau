@@ -346,6 +346,9 @@ function PlotService.updateVisuals(plot: Plot, data)
 	plot.decor:ClearAllChildren()
 	local upgrades = data and data.upgrades or {}
 	local rebirths = data and data.rebirths or 0
+	local world = Config.Worlds[Config.worldIndex(rebirths)]
+	plot.base.Color = world.base
+	plot.base.Material = world.material
 
 	PlotService.updateRefinery(plot, upgrades.Refinery or 0)
 	local borderColor = Config.RebirthColors[(rebirths % #Config.RebirthColors) + 1]
